@@ -11,11 +11,11 @@ shared_scripts {
 }
 
 server_scripts {
-    'server/*.lua'
+    'server.lua'
 }
 
 client_scripts {
-    'client/*.lua'
+    'client.lua'
 }
 
 lua54 'yes'
