@@ -446,10 +446,10 @@ RegisterNetEvent('randol_parceljob:client:finishWork', function()
     local finishspot = vector3(Config.BossCoords.x, Config.BossCoords.y, Config.BossCoords.z)
    
     
-    if not veh or not DoesEntityExist(veh) then
-        RSGCore.Functions.Notify("Couldn't find your work wagon nearby.", "error")
-        return
-    end
+    --if not veh or not DoesEntityExist(veh) then
+        --RSGCore.Functions.Notify("Couldn't find your work wagon nearby.", "error")
+        --return
+    --end
     
     
 
