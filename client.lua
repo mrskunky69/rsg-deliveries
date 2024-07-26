@@ -15,6 +15,9 @@ local isCarryingParcel = false
 local lastMovementTime = 0
 local detachmentDelay = 10000  -- 
 
+
+
+
 local function loadAnimDict(dict)
     while (not HasAnimDictLoaded(dict)) do
         RequestAnimDict(dict)
@@ -133,9 +136,9 @@ AddEventHandler('onResourceStart', function(resource)
     end
 end)
 
-RegisterNetEvent('RSGCore:Client:OnPlayerLoaded', function()
-    ClockInPed()
-end)
+--RegisterNetEvent('RSGCore:Client:OnPlayerLoaded', function()
+    --ClockInPed()
+--end)
 
 RegisterNetEvent('RSGCore:Client:OnPlayerUnload', function()
     exports['rsg-target']:RemoveZone("deliverZone")
@@ -181,11 +184,32 @@ end)
 
 function PullOutWagon()
     local coords = Config.WagonSpawn
+    if not coords then
+        print("Error: Config.WagonSpawn is nil.")
+    end
+    if not Config.Vehicle then
+        print("Error: Config.Vehicle is nil.")
+    end
+
     RSGCore.Functions.SpawnVehicle(Config.Vehicle, function(parcelWagon)
-        SetEntityHeading(parcelWagon, coords.w)
+        if not parcelWagon then
+            print("Error: Vehicle spawning failed.")
+            return
+        end
+
+        SetEntityHeading(parcelWagon, coords.w or 0.0)  -- Default to 0.0 if coords.w is nil
         SetVehicleOnGroundProperly(parcelWagon)
         SetVehicleDirtLevel(parcelWagon, 0)
         TaskWarpPedIntoVehicle(PlayerPedId(), parcelWagon, -1)
+
+        -- Set the decorator on the vehicle
+        if not DecorExistOn(parcelWagon, "parcel_job") then
+            
+        else
+            
+        end
+        DecorSetBool(parcelWagon, "parcel_job", true)
+
         exports['rsg-target']:AddTargetEntity(parcelWagon, {
             options = {
                 {
@@ -204,6 +228,8 @@ function PullOutWagon()
     ownsWagon = true
     NextDelivery()
 end
+
+
 
 RegisterNetEvent('randol_parceljob:client:startJob', function()
     if not Hired then
@@ -439,24 +465,63 @@ RegisterNetEvent('randol_parceljob:client:finishWork', function()
     local pos = GetEntityCoords(ped)
     local veh = RSGCore.Functions.GetClosestVehicle()
     local finishspot = vector3(Config.BossCoords.x, Config.BossCoords.y, Config.BossCoords.z)
+    local bonusAmount = 20  -- Cash bonus amount
+
+    -- Check if the player is near the boss
     if #(pos - finishspot) < 10.0 then
         if Hired then
-            if DecorExistOn((veh), "parcel_job") then
+            -- Ensure the player is not in a vehicle
+            if IsPedInAnyVehicle(ped, false) then
+                RSGCore.Functions.Notify("You must be outside of a vehicle to finish the job.", "error")
+                return
+            end
+
+            -- Ensure the vehicle is valid and has the correct decorator
+            if veh and DoesEntityExist(veh) and DecorExistOn(veh, "parcel_job") then
+                print("Found work wagon, attempting to delete.")
+
+                -- Attempt to delete the vehicle
                 RSGCore.Functions.DeleteVehicle(veh)
-                RemoveBlip(JobBlip)
+
+                -- Confirm deletion by checking if the vehicle still exists
+                if not DoesEntityExist(veh) then
+                    print("Vehicle successfully deleted.")
+                else
+                    print("Failed to delete vehicle.")
+                end
+
+                -- Remove JobBlip and reset job variables
+                if JobBlip then
+                    RemoveBlip(JobBlip)
+                end
                 ResetJobVariables()
+				ClearGpsMultiRoute()
+
+                -- Notify the player about the delivery completion
                 if DeliveriesCount > 0 then
                     RSGCore.Functions.Notify("You completed " .. DeliveriesCount .. " deliveries.", "success")
                 else
-                    RSGCore.Functions.Notify("You didn't complete any deliveries so you weren't paid.", "error")
+                    RSGCore.Functions.Notify("You completed all deliveries.", "success")
                 end
+                
+                -- Trigger server event to process payment
+                TriggerServerEvent('randol_parceljob:server:Payment', DeliveriesCount)
+                
                 DeliveriesCount = 0
             else
                 RSGCore.Functions.Notify("You must return your work wagon to get paid.", "error")
             end
+        else
+            RSGCore.Functions.Notify("You are not currently hired for a job.", "error")
         end
+    else
+        print("Player is too far from the boss.")
+        RSGCore.Functions.Notify("You are too far from the boss to finish the job.", "error")
     end
 end)
+
+
+
 
 function loadAnimDict(dict)
     while not HasAnimDictLoaded(dict) do
