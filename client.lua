@@ -227,9 +227,10 @@ RegisterNetEvent('randol_parceljob:client:deliverParcel', function()
         ParcelDelivered = true
 
         -- Play put down animation
-        loadAnimDict("mech_pickup@plant@gold_currant")
-        TaskPlayAnim(player, "mech_pickup@plant@gold_currant", "exit_lf", 8.0, -8.0, -1, 0, 0, false, false, false)
-        
+        -- loadAnimDict("mech_pickup@plant@gold_currant")
+        -- TaskPlayAnim(player, "mech_pickup@plant@gold_currant", "exit_lf", 8.0, -8.0, -1, 0, 0, false, false, false)
+        prop = exports['carry']:dropEntity()
+
         RSGCore.Functions.Progressbar("deliver", "Delivering parcel", 7000, false, true, {
             disableMovement = true,
             disableCarMovement = true,
@@ -306,17 +307,23 @@ AddEventHandler('randol_parceljob:client:takeParcel', function()
     local coords = GetEntityCoords(playerPed)
 
     if not isCarryingParcel then
-        loadAnimDict("mech_carry@package")
-        TaskPlayAnim(playerPed, "mech_carry@package", "idle", 8.0, -8.0, -1, 31, 0, false, false, false)
+        local dict = "mech_carry_box"
+        -- RequestAnimDict(dict)
+        -- while not HasAnimDictLoaded(dict) do
+        --     Citizen.Wait(100)
+        -- end
 
-        local parcelCoords = GetOffsetFromEntityInWorldCoords(playerPed, 0.0, 0.5, 0.0)
-        local object = CreateObject(GetHashKey('p_cs_parcel01x'), parcelCoords.x, parcelCoords.y, parcelCoords.z, true, false, false)
-        AttachEntityToEntity(object, playerPed, GetPedBoneIndex(playerPed, 60309), 0.1, 0.1, 0.05, 0.0, 90.0, 90.0, true, true, false, true, 1, true)
+        -- TaskPlayAnim(playerPed, dict, "idle", 8.0, -8.0, -1, 31, 0, false, false, false)
+
+        -- local parcelCoords = GetOffsetFromEntityInWorldCoords(playerPed, 0.0, 0.0, 0.0)
+        -- local object = CreateObject(GetHashKey(Config.ParcelProp), parcelCoords.x, parcelCoords.y, parcelCoords.z, true, false, false)
+
+        -- AttachEntityToEntity(object, playerPed, GetPedBoneIndex(playerPed, 28422), 0.0, 0.6, -0.2, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
 
         parcelObject = object
         isCarryingParcel = true
         lastMovementTime = GetGameTimer()
-
+        exports['carry']:createAndPickupObject(Config.ParcelProp,coords)
         RSGCore.Functions.Notify("You've picked up a parcel. Deliver it to the marked location.", "success")
     end
 end)
@@ -397,22 +404,24 @@ function TakeParcel()
 
     if not IsPedInAnyVehicle(player, false) and not HasParcel then
         if newDelivery and #(pos - vector3(newDelivery.x, newDelivery.y, newDelivery.z)) < 30.0 then
-            local dict = "mech_carry_box"
-            local anim = "idle"
-            local prop_name = 'p_cs_parcel01x'
+            -- local dict = "mech_carry_box"
+            -- local anim = "idle"
+            local playerCoord = GetEntityCoords(player)
+            local prop_name = Config.ParcelProp
+            exports['carry']:createAndPickupObject(Config.ParcelProp,playerCoord)
             
-            RequestAnimDict(dict)
-            while not HasAnimDictLoaded(dict) do
-                Wait(10)
-            end
+            -- RequestAnimDict(dict)
+            -- while not HasAnimDictLoaded(dict) do
+            --     Wait(10)
+            -- end
             
-            -- Create the parcel object and attach it to the player
-            local x, y, z = table.unpack(GetEntityCoords(player))
-            prop = CreateObject(GetHashKey(prop_name), x, y, z + 0.2, true, true, true)
-            AttachEntityToEntity(prop, player, GetPedBoneIndex(player, 60309), 0.2, 0.08, 0.2, -45.0, 290.0, 0.0, true, true, false, true, 1, true)
+            -- -- Create the parcel object and attach it to the player
+            -- local x, y, z = table.unpack(GetEntityCoords(player))
+            -- prop = CreateObject(GetHashKey(prop_name), x, y, z + 0.2, true, true, true)
+            -- AttachEntityToEntity(prop, player, GetPedBoneIndex(player, 60309), 0.2, 0.08, 0.2, -45.0, 290.0, 0.0, true, true, false, true, 1, true)
             
-            -- Play the carrying animation
-            TaskPlayAnim(player, dict, anim, 3.0, 3.0, -1, 63, 0, false, false, false)
+            -- -- Play the carrying animation
+            -- TaskPlayAnim(player, dict, anim, 3.0, 3.0, -1, 63, 0, false, false, false)
             
             HasParcel = true
             RSGCore.Functions.Notify("You've taken a parcel. Deliver it to the marked location.", "success")
