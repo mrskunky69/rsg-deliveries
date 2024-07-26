@@ -1,6 +1,6 @@
 Config = {}
 Config.BossModel = "re_townburial_males_01"
-Config.ParcelProp = "p_package01x"  -- You can change this to any prop that exists in your game
+Config.ParcelProp = "p_crate03c"  -- You can change this to any prop that exists in your game
 Config.BlipSprite = 1861010125 -- This is an example sprite, you may want to choose a more appropriate one
 Config.BlipScale = 0.2 -- Adjust this value to change the size of the blip
 Config.AddGPSRoute = true
