@@ -134,7 +134,7 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 RegisterNetEvent('RSGCore:Client:OnPlayerLoaded', function()
-    ClearGpsMultiRoute()
+    ClockInPed()
 end)
 
 RegisterNetEvent('RSGCore:Client:OnPlayerUnload', function()
@@ -185,7 +185,6 @@ function PullOutWagon()
         SetEntityHeading(parcelWagon, coords.w)
         SetVehicleOnGroundProperly(parcelWagon)
         SetVehicleDirtLevel(parcelWagon, 0)
-		DecorSetBool(parcelWagon, "parcel_job", true)
         TaskWarpPedIntoVehicle(PlayerPedId(), parcelWagon, -1)
         exports['rsg-target']:AddTargetEntity(parcelWagon, {
             options = {
@@ -432,11 +431,7 @@ function TakeParcel()
     end
 end
 
-local veh = RSGCore.Functions.GetClosestVehicle()
-if not veh or not DoesEntityExist(veh) then
-    RSGCore.Functions.Notify("Couldn't find your work wagon nearby.", "error")
-    return
-end
+
 
 
 RegisterNetEvent('randol_parceljob:client:finishWork', function()
@@ -444,35 +439,22 @@ RegisterNetEvent('randol_parceljob:client:finishWork', function()
     local pos = GetEntityCoords(ped)
     local veh = RSGCore.Functions.GetClosestVehicle()
     local finishspot = vector3(Config.BossCoords.x, Config.BossCoords.y, Config.BossCoords.z)
-   
-    
-    --if not veh or not DoesEntityExist(veh) then
-        --RSGCore.Functions.Notify("Couldn't find your work wagon nearby.", "error")
-        --return
-    --end
-    
-    
-
     if #(pos - finishspot) < 10.0 then
         if Hired then
-            if DecorExistOn(veh, "parcel_job") then
+            if DecorExistOn((veh), "parcel_job") then
                 RSGCore.Functions.DeleteVehicle(veh)
                 RemoveBlip(JobBlip)
                 ResetJobVariables()
-				ClearGpsMultiRoute()
                 if DeliveriesCount > 0 then
                     RSGCore.Functions.Notify("You completed " .. DeliveriesCount .. " deliveries.", "success")
-                
+                else
+                    RSGCore.Functions.Notify("You didn't complete any deliveries so you weren't paid.", "error")
                 end
                 DeliveriesCount = 0
             else
-                RSGCore.Functions.Notify("This doesn't seem to be the work wagon.", "error")
+                RSGCore.Functions.Notify("You must return your work wagon to get paid.", "error")
             end
-        else
-            RSGCore.Functions.Notify("You're not currently hired for this job.", "error")
         end
-    else
-        RSGCore.Functions.Notify("You need to be closer to the boss to finish work.", "error")
     end
 end)
 

@@ -4,7 +4,7 @@ Config.ParcelProp = "p_crate03c"  -- You can change this to any prop that exists
 Config.BlipSprite = 1861010125 -- This is an example sprite, you may want to choose a more appropriate one
 Config.BlipScale = 0.2 -- Adjust this value to change the size of the blip
 Config.AddGPSRoute = true
-Config.Payment = 30 -- Per Delivery. Totals up and get paid when you return the wagon.
+Config.Payment = 10 -- Per Delivery. Totals up and get paid when you return the wagon.
 Config.BossCoords = vector3(-1606.90, -1407.43, 81.93)
 Config.Vehicle = "huntercart01"
 Config.WagonSpawn = vector4(-1616.13, -1397.73, 82.25, 48.83)
@@ -15,13 +15,6 @@ Config.JobLocs = {
 	vector3(-2324.88, -2406.15, 63.85),
 	vector3(-1446.34, -2309.12, 44.52),
 	vector3(-5491.72, -2942.60, -0.47),
-	vector3(-2354.56, -2364.31, 62.64),
-	vector3(2952.87, 523.24, 45.49),
-	vector3(3025.04, 554.06, 44.69),
-	vector3(432.35, 2196.82, 246.56),
-	vector3(-557.22, 2698.65, 320.41),
-	vector3(-1300.79, 388.93, 95.30),
-	vector3(-3625.70, -2605.45, -13.35),
-	vector3(-798.78, -1203.09, 44.19)
+	vector3(2637.16, -1299.22, 52.05)
 	
 }
